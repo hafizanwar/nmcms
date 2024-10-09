@@ -1,0 +1,41 @@
+# Install Microsoft Graph module if not installed already
+if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
+    Install-Module Microsoft.Graph -Force
+}
+
+# Import the Microsoft Graph module
+Import-Module Microsoft.Graph
+
+# Connect to Microsoft Graph
+Connect-MgGraph -Scopes "Group.Read.All"
+
+# Specify the M365 Group ID
+$groupId = "GROUPID"
+
+# Get the group members
+$groupMembers = Get-MgGroupMember -GroupId $groupId
+
+# Create an empty array to hold user details
+$userList = @()
+
+# Check if the group has members
+if ($groupMembers.Count -eq 0) {
+    Write-Host "No members found in the group."
+} else {
+    # Retrieve users' details and add them to the array
+    $groupMembers | ForEach-Object {
+        $user = Get-MgUser -UserId $_.Id
+        $userList += [PSCustomObject]@{
+            DisplayName        = $user.DisplayName
+            Email              = $user.UserPrincipalName
+        }
+    }
+
+    # Export the user details to a CSV file
+    $csvPath = "C:\M365GroupMembers.csv"
+    $userList | Export-Csv -Path $csvPath -NoTypeInformation
+    Write-Host "User list has been exported to $csvPath"
+}
+
+# Disconnect from Microsoft Graph
+Disconnect-MgGraph
