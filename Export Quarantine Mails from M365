@@ -1,0 +1,5 @@
+Connect-ExchangeOnline
+Import-Module ExchangeOnlineManagement
+Get-QuarantineMessage -StartReceivedDate 10/25/2024 -EndReceivedDate 10/28/2024 | Select
+ReceivedTime,SenderAddress,RecipientAddress,Subject,MessageID,RecipientCount,QuarantineTypes| 
+Export-Csv -Path "C:\QuarantinedEmailsbyDateRange.csv" -NoTypeInformation -Append –Force
